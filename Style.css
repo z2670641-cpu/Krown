@@ -1,0 +1,79 @@
+:root {
+    --bg: #0f0f13;
+    --card-bg: #1a1124;
+    --text: #ffffff;
+    --text-muted: #8b8b99;
+    --accent: #7c3aed;
+    --accent-light: #a78bfa;
+    --border: #2a1e3a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; overflow-x: hidden; }
+
+.page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.header { margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+.header h1 span { color: var(--accent); }
+.header h2 { font-size: 20px; font-weight: 700; }
+.header.with-back { justify-content: flex-start; gap: 15px; }
+
+.back-btn { background: transparent; color: var(--accent-light); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+
+.search-bar input { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 12px; font-size: 15px; outline: none; margin-bottom: 15px; }
+.search-bar input:focus { border-color: var(--accent); }
+
+.categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
+.categories::-webkit-scrollbar { display: none; }
+.cat-btn { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; white-space: nowrap; font-size: 14px; cursor: pointer; transition: 0.2s; }
+.cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); cursor: pointer; position: relative; }
+.product-card img { width: 100%; height: 140px; object-fit: cover; background: #222; }
+.product-tag { position: absolute; top: 10px; left: 10px; background: var(--accent); color: white; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+.product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
+.product-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; flex: 1; }
+.product-footer { display: flex; justify-content: space-between; align-items: center; }
+.product-price { background: var(--accent); color: #fff; font-weight: bold; padding: 6px 10px; border-radius: 8px; font-size: 14px; }
+
+.cart-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 80px; }
+.cart-empty { border: 1px dashed var(--border); border-radius: 16px; padding: 40px; text-align: center; color: var(--text-muted); }
+.cart-item { background: var(--card-bg); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); }
+.cart-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+.cart-item-info { flex: 1; }
+.cart-item-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.cart-item-price { color: var(--accent-light); font-size: 13px; font-weight: bold; }
+.cart-item-actions { display: flex; align-items: center; gap: 10px; }
+.cart-item-actions button { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; border: none; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.cart-bottom { position: fixed; bottom: 70px; left: 0; right: 0; background: var(--bg); padding: 15px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 90; }
+.total-price { font-size: 16px; }
+.checkout-btn { background: var(--accent); color: #fff; border: none; padding: 12px 24px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+.profile-card { background: var(--card-bg); border-radius: 20px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; border: 1px solid var(--border); margin-bottom: 20px; }
+.avatar { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 15px; }
+.username { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+.user-tag { background: rgba(124, 58, 237, 0.2); color: var(--accent-light); padding: 4px 12px; border-radius: 20px; font-size: 14px; margin-bottom: 20px; }
+.tg-id-box { width: 100%; background: var(--bg); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; }
+.tg-id-box span { color: var(--text-muted); }
+.tg-id-box b { color: var(--accent-light); }
+
+.menu-list { display: flex; flex-direction: column; gap: 10px; }
+.menu-item { background: var(--card-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); cursor: pointer; }
+.menu-icon { width: 40px; height: 40px; background: rgba(124, 58, 237, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.menu-text { flex: 1; display: flex; flex-direction: column; }
+.menu-text b { font-size: 15px; margin-bottom: 2px; }
+.menu-text span { font-size: 12px; color: var(--text-muted); }
+.arrow { color: var(--accent); font-size: 20px; font-weight: bold; }
+.status-online { background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; cursor: pointer; gap: 4px; transition: 0.2s; position: relative; }
+.nav-item.active { color: var(--accent-light); }
+.nav-item .icon { font-size: 22px; }
+.badge { position: absolute; top: -5px; right: -10px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; }
