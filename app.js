@@ -2,16 +2,23 @@ const tg = window.Telegram?.WebApp;
 tg?.expand();
 tg?.ready();
 
+// 👑 ТВОИ ID (для доступа к админке)
 const ADMIN_IDS = [8678582128, 8403172681, 8918951833];
 const USER_ID = tg?.initDataUnsafe?.user?.id || 0;
 
-// ⚠️ ПОЗЖЕ ЗАМЕНИШЬ НА ССЫЛКУ С RENDER (когда загрузишь бэкенд)
-const API_URL = "https://твой-домен.onrender.com"; 
+// Базовые товары (если в памяти телефона пусто)
+const DEFAULT_PRODUCTS = [
+    { id: 1, name: "Rick and Morty BAD TRIP", price: 17, cat: "Жидкости", img: "https://picsum.photos/seed/vape1/200" },
+    { id: 2, name: "Монашка x XOTSPOT", price: 17, cat: "Жидкости", img: "https://picsum.photos/seed/vape2/200" },
+    { id: 3, name: "Никобустер 20%", price: 5, cat: "Никобустеры", img: "https://picsum.photos/seed/vape3/200" },
+    { id: 4, name: "Rick and Morty x CATCWILL", price: 20, cat: "Жидкости", img: "https://picsum.photos/seed/vape4/200" }
+];
 
+// Загружаем товары из памяти телефона (или ставим базовые)
+let products = JSON.parse(localStorage.getItem('krown_products')) || DEFAULT_PRODUCTS;
 let cart = JSON.parse(localStorage.getItem('krown_cart_' + USER_ID) || "{}");
 let currentCat = "Все";
 let searchQuery = "";
-let products = []; 
 const categories = ["Все", "Испарители", "Жидкости", "Поды", "Картриджи", "Баки", "Снюс", "Никобустеры"];
 
 // === ПРОФИЛЬ ===
@@ -29,63 +36,38 @@ if (user) {
     document.getElementById('user-id').textContent = "000000";
 }
 
-// === АДМИНКА ===
+// === АДМИНКА (Работает прямо в телефоне) ===
 function openAdminPanel() {
-    let action = prompt("👑 ПАНЕЛЬ АДМИНИСТРАТОРА\n\n1 - Добавить товар\n2 - Создать промокод\n3 - Забанить юзера");
+    let action = prompt("👑 ПАНЕЛЬ АДМИНИСТРАТОРА\n\n1 - Добавить товар\n2 - Очистить все товары");
+    
     if (action === "1") {
         let name = prompt("Название товара:");
         if(!name) return;
         let price = prompt("Цена (число):");
         let cat = prompt("Категория (Жидкости/Поды/Никобустеры...):");
         let img = prompt("Ссылка на картинку (URL):");
-        fetch(`${API_URL}/api/admin/add_product?name=${encodeURIComponent(name)}&price=${price}&cat=${encodeURIComponent(cat)}&img=${encodeURIComponent(img)}`, {
-            method: "POST", headers: { "X-User-Id": USER_ID.toString() }
-        }).then(res => {
-            if(res.ok) { tg?.showAlert("✅ Товар добавлен!"); loadProducts(); }
-            else tg?.showAlert("❌ Ошибка доступа");
-        });
+        
+        // Создаем новый товар и добавляем в список
+        const newProduct = { id: Date.now(), name: name, price: Number(price), cat: cat, img: img };
+        products.push(newProduct);
+        
+        // Сохраняем в память телефона
+        localStorage.setItem('krown_products', JSON.stringify(products));
+        tg?.showAlert("✅ Товар добавлен в магазин!");
+        renderProducts();
     }
+    
     if (action === "2") {
-        let code = prompt("Промокод (KROWN10):");
-        if(!code) return;
-        let discount = prompt("Скидка в %:");
-        let uses = prompt("Кол-во активаций:");
-        fetch(`${API_URL}/api/admin/create_promo?code=${code}&discount=${discount}&uses=${uses}`, {
-            method: "POST", headers: { "X-User-Id": USER_ID.toString() }
-        }).then(res => {
-            if(res.ok) tg?.showAlert("✅ Промокод создан!"); else tg?.showAlert("❌ Ошибка");
-        });
-    }
-    if (action === "3") {
-        let target_id = prompt("ID юзера для бана:");
-        if(!target_id) return;
-        fetch(`${API_URL}/api/admin/ban_user?user_id=${target_id}&ban=true`, {
-            method: "POST", headers: { "X-User-Id": USER_ID.toString() }
-        }).then(res => {
-            if(res.ok) tg?.showAlert("✅ Юзер забанен!"); else tg?.showAlert("❌ Ошибка");
-        });
+        if(confirm("Удалить все товары и вернуть базовые?")) {
+            localStorage.removeItem('krown_products');
+            products = DEFAULT_PRODUCTS;
+            renderProducts();
+            tg?.showAlert("✅ Товары сброшены.");
+        }
     }
 }
 
-// === ЗАГРУЗКА ТОВАРОВ ===
-async function loadProducts() {
-    try {
-        const res = await fetch(`${API_URL}/api/products`);
-        products = await res.json();
-        renderCategories();
-        renderProducts();
-    } catch (e) { 
-        console.error("Ошибка загрузки товаров", e); 
-        // Если сервер не подключен, показываем тестовые товары, чтобы сайт не был пустым
-        products = [
-            { id: 1, name: "Rick and Morty BAD TRIP", price: 17, cat: "Жидкости", img: "https://picsum.photos/seed/vape1/200" },
-            { id: 2, name: "Никобустер 20%", price: 5, cat: "Никобустеры", img: "https://picsum.photos/seed/vape3/200" }
-        ];
-        renderCategories();
-        renderProducts();
-    }
-}
-
+// === РЕНДЕР ===
 function renderCategories() {
     document.getElementById('categories').innerHTML = categories.map(c => 
         `<button class="cat-btn ${c === currentCat ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>`
@@ -183,7 +165,7 @@ function renderCart() {
     bottom.style.display = 'flex';
 }
 
-// === ОФОРМЛЕНИЕ ===
+// === ОФОРМЛЕНИЕ (Отправка боту) ===
 function checkout() {
     if (Object.keys(cart).length === 0) return;
     const orderItems = Object.keys(cart).map(id => {
@@ -191,13 +173,18 @@ function checkout() {
         return { name: p.name, qty: cart[id], price: p.price };
     });
     const total = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
+    
+    // Отправляем заказ боту
     if (tg?.sendData) { tg.sendData(JSON.stringify({ order: orderItems, total: total })); }
+    
     cart = {}; saveCart(); renderCart(); switchPage('assortment');
     tg?.showAlert("✅ Заказ оформлен! Менеджер свяжется с вами.");
 }
 
-// ⚠️ ЗАМЕНИ НА ЮЗЕРНЕЙМ МЕНЕДЖЕРА
+// ЗАМЕНИ НА ЮЗЕРНЕЙМ МЕНЕДЖЕРА
 function openManager() { tg?.openTelegramLink("https://t.me/твой_менеджер"); }
 
 // === СТАРТ ===
-loadProducts();
+renderCategories();
+renderProducts();
+updateCartCounters();
